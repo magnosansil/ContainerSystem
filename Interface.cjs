@@ -118,6 +118,7 @@ function queryContainerData() {
       console.log(`Peso da carga: ${container.weight} kg`);
       console.log(`Tipo de operação: ${container.operationType}`);
     } else {
+      console.log();
       console.log('Contêiner não encontrado.');
     }
     displayMenu();
@@ -137,6 +138,7 @@ function queryTopContainerAtPosition() {
       console.log(`Peso da carga: ${container.weight} kg`);
       console.log(`Tipo de operação: ${container.operationType}`);
     } else {
+      console.log();
       console.log('Posição vazia ou inválida.');
     }
     displayMenu();
@@ -156,6 +158,7 @@ function queryContainersByCargoType() {
     const cargoType = cargoTypes[parseInt(cargoTypeChoice) - 1];
 
     if (!cargoType) {
+      console.log();
       console.log('Tipo de carga inválido.');
       displayMenu();
       processInput();
@@ -166,6 +169,7 @@ function queryContainersByCargoType() {
     const formattedCargoType = formatCargoType(cargoType);
 
     const count = portSystem.getContainersByCargoType(formattedCargoType);
+    console.log();
     console.log(`Quantidade de contêineres do tipo ${formattedCargoType}: ${count}`);
     displayMenu();
     processInput();
