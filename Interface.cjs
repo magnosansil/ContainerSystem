@@ -68,7 +68,7 @@ function insertContainer() {
               processInput();
               return;
             }
-            rl.question('Posição de empilhamento: ', (position) => {
+            rl.question('Posição de empilhamento (A até J): ', (position) => {
               // Converter a posição inserida para maiúsculas
               const normalizedPosition = position.toUpperCase();
               const stack = portSystem.yard.stacks.find((s) => s.position === normalizedPosition);
