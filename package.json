@@ -1,0 +1,12 @@
+{
+    "name": "terminal-portuario-app",
+    "version": "1.0.0",
+    "description": "Port Management System: A Node.js application for managing containers in a simulated port, including inserting, moving, querying and deleting containers.",
+    "main": "Interface.cjs",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node Interface.cjs"
+    },
+    "author": "Magno Silva",
+    "license": "None"
+  }
