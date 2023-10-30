@@ -28,81 +28,140 @@ function displayMenu() {
 }
 
 function insertContainer() {
-  rl.question('ID do contêiner: ', (id) => {
-    // Verifique se um contêiner com o mesmo ID já existe
-    const duplicateContainer = portSystem.yard.stacks
-      .flatMap((stack) => stack.containers)
-      .find((container) => container.id === id);
-
-    if (duplicateContainer) {
-      console.log();
-      console.log('Um contêiner com o mesmo ID já existe. O contêiner não foi inserido.');
-      displayMenu();
-      processInput();
-      return; // Saia da função para evitar a inserção do contêiner duplicado
-    }
-
-    rl.question('Nome do proprietário: ', (owner) => {
-      // Adicione aqui a seleção de tipos de carga e tipos de operação
-      console.log();
-      console.log('Selecione o tipo de carga:');
-      console.log('1. Carga seca');
-      console.log('2. Commodities');
-      console.log('3. Produtos perigosos');
-      console.log('4. Produtos perecíveis');
+  rl.question('Nome do proprietário: ', (owner) => {
+    console.log();
+    console.log('Selecione o tipo de carga:');
+    console.log('1. Carga seca');
+    console.log('2. Commodities');
+    console.log('3. Produtos perigosos');
+    console.log('4. Produtos perecíveis');
+    
+    const validCargoTypes = ['Carga seca', 'Commodities', 'Produtos perigosos', 'Produtos perecíveis'];
+    
+    const getCargoType = () => {
       rl.question('Escolha uma opção (1/2/3/4): ', (cargoTypeChoice) => {
-        const cargoTypes = ['Carga seca', 'Commodities', 'Produtos perigosos', 'Produtos perecíveis'];
-        const cargoType = cargoTypes[parseInt(cargoTypeChoice) - 1];
-
-        console.log();
-        console.log('Selecione o tipo de operação:');
-        console.log('1. Embarque');
-        console.log('2. Desembarque');
-        rl.question('Escolha uma opção (1/2): ', (operationTypeChoice) => {
-          const operationTypes = ['Embarque', 'Desembarque'];
-          const operationType = operationTypes[parseInt(operationTypeChoice) - 1];
-
-          rl.question('Peso da carga (em kg): ', (weight) => {
-            if (isNaN(weight)) {
-              console.log();
-              console.log('Peso da carga inválido.');
-              displayMenu();
-              processInput();
-              return;
-            }
-            rl.question('Posição de empilhamento (A até J): ', (position) => {
-              // Converter a posição inserida para maiúsculas
-              const normalizedPosition = position.toUpperCase();
-              const stack = portSystem.yard.stacks.find((s) => s.position === normalizedPosition);
-              if (stack) {
-                if (stack.isFull()) {
-                  console.log();
-                  console.log('A posição de empilhamento está cheia. O contêiner não foi inserido.');
-                } else {
-                  const container = new Container(id, owner, cargoType, parseFloat(weight), operationType);
-                  stack.pushContainer(container);
-                  console.log();
-                  console.log(`Contêiner ${id} inserido na posição ${normalizedPosition}`);
-                }
-              } else {
-                console.log();
-                console.log('Posição de empilhamento inválida. O contêiner não foi inserido.');
-              }
-              displayMenu();
-              processInput();
-            });
-          });
-        });
+        const cargoTypeIndex = parseInt(cargoTypeChoice) - 1;
+        if (cargoTypeIndex >= 0 && cargoTypeIndex < validCargoTypes.length) {
+          const cargoType = validCargoTypes[cargoTypeIndex];
+          selectOperationType(cargoType);
+        } else {
+          console.log('Opção de tipo de carga inválida. Tente novamente.');
+          getCargoType();
+        }
       });
-    });
+    };
+    
+    const selectOperationType = (cargoType) => {
+      console.log();
+      console.log('Selecione o tipo de operação:');
+      console.log('1. Embarque');
+      console.log('2. Desembarque');
+      
+      rl.question('Escolha uma opção (1/2): ', (operationTypeChoice) => {
+        const operationTypeIndex = parseInt(operationTypeChoice) - 1;
+        if (operationTypeIndex === 0 || operationTypeIndex === 1) {
+          const operationType = operationTypeIndex === 0 ? 'Embarque' : 'Desembarque';
+          askForWeight(cargoType, operationType);
+        } else {
+          console.log('Opção de tipo de operação inválida. Tente novamente.');
+          selectOperationType(cargoType);
+        }
+      });
+    };
+    
+    const askForWeight = (cargoType, operationType) => {
+      rl.question('Peso da carga (em kg): ', (weight) => {
+        if (!isNaN(weight)) {
+          rl.question('Posição de empilhamento (A até J): ', (position) => {
+            const normalizedPosition = position.toUpperCase();
+            const stack = portSystem.yard.stacks.find((s) => s.position === normalizedPosition);
+            if (stack) {
+              if (stack.isFull()) {
+                console.log('A posição de empilhamento está cheia. O contêiner não foi inserido.');
+              } else {
+                const containerId = generateContainerId(normalizedPosition);
+                const container = new Container(containerId, owner, cargoType, parseFloat(weight), operationType);
+                stack.pushContainer(container);
+                console.log(`Contêiner ${containerId} inserido na posição ${normalizedPosition}`);
+              }
+            } else {
+              console.log('Posição de empilhamento inválida. O contêiner não foi inserido.');
+            }
+            displayMenu();
+            processInput();
+          });
+        } else {
+          console.log('Peso da carga inválido. Tente novamente.');
+          askForWeight(cargoType, operationType);
+        }
+      });
+    };
+    
+    getCargoType();
   });
+}
+
+function generateContainerId(position) {
+  let isThereId
+  const stack = portSystem.yard.stacks.find((s) => s.position === position);
+  if (stack) {
+    const orderNumber = stack.containers.length + 1;
+    const containerId = `${position}.${orderNumber}`;
+    isThereId = containerId;
+  } else {
+    isThereId = 'N/A'
+  }
+  return isThereId;
 }
 
 function moveContainer() {
   rl.question('ID do contêiner a ser movido: ', (containerId) => {
+    const container = portSystem.getContainerById(containerId);
+    if (!container) {
+      console.log();
+      console.log('Contêiner não encontrado. Movimentação não permitida.');
+      displayMenu();
+      processInput();
+      return;
+    }
     rl.question('Nova posição de empilhamento: ', (newPosition) => {
       newPosition = newPosition.toUpperCase();
-      portCrane.moveContainer(containerId, newPosition);
+
+      // Verifica se a posição de destino está cheia
+      const stack = portSystem.yard.stacks.find((s) => s.position === newPosition);
+      if (stack && stack.isFull()) {
+        console.log();
+        console.log('A posição de destino está cheia. Movimentação não permitida.');
+        displayMenu();
+        processInput();
+        return;
+      }
+
+      // Verifica se o contêiner é o último na posição atual
+      const currentStack = portSystem.yard.stacks.find((s) => 
+        s.containers.length > 0 && s.containers[s.containers.length - 1].id === containerId
+      );  
+      if (currentStack && currentStack.containers.length > 0) {
+        const lastContainerInCurrentStack = currentStack.containers[currentStack.containers.length - 1];
+        if (lastContainerInCurrentStack.id !== container.id) {
+          console.log();
+          console.log('Somente o contêiner no topo da pilha pode ser movido.');
+          displayMenu();
+          processInput();
+          return;
+        }
+      }
+
+      // Mova o contêiner para a nova posição
+      if (portCrane.moveContainer(containerId, newPosition)) {
+        // Atualize o ID do contêiner
+        container.id = `${newPosition}.${stack.containers.length}`;
+        console.log();
+        console.log(`Contêiner movido para a posição ${newPosition} com o novo ID: ${container.id}`);
+      } else {
+        console.log();
+        console.log('Movimentação não permitida. O contêiner não foi movido.');
+      }
       displayMenu();
       processInput();
     });
@@ -150,6 +209,10 @@ function queryTopContainerAtPosition() {
   });
 }
 
+function formatCargoType(cargoType) {
+  return cargoType.charAt(0).toUpperCase() + cargoType.slice(1).toLowerCase();
+}
+
 function queryContainersByCargoType() {
   // Menu para selecionar o tipo de carga
   console.log('Selecione o tipo de carga:');
@@ -178,10 +241,6 @@ function queryContainersByCargoType() {
     displayMenu();
     processInput();
   });
-}
-
-function formatCargoType(cargoType) {
-  return cargoType.charAt(0).toUpperCase() + cargoType.slice(1).toLowerCase();
 }
 
 function queryContainersByOperationType() {
@@ -220,15 +279,16 @@ function queryTotalWeightByCargoType() {
     const cargoTypes = ['Carga Seca', 'Commodities', 'Produtos Perigosos', 'Produtos Perecíveis'];
     const cargoType = cargoTypes[parseInt(cargoTypeChoice) - 1];
 
-    // Ajustar o cargoType para corresponder ao formato correto
-    const formattedCargoType = formatCargoType(cargoType);
-
     if (!cargoType) {
+      console.log();
       console.log('Tipo de carga inválido.');
       displayMenu();
       processInput();
       return;
     }
+
+    // Ajustar o cargoType para corresponder ao formato correto
+    const formattedCargoType = formatCargoType(cargoType);
 
     const totalWeight = portSystem.getTotalWeightByCargoType(formattedCargoType);
     console.log();
@@ -253,25 +313,22 @@ function queryEmptyPositions() {
 
 function deleteContainer() {
   rl.question('ID do contêiner a ser excluído: ', (containerId) => {
+    // Verifica se o contêiner existe na posição e é o contêiner no topo da pilha
     const stack = portSystem.yard.stacks.find((s) =>
-      s.containers.some((container) => container.id === containerId)
+      s.containers.length > 0 && s.containers[s.containers.length - 1].id === containerId
     );
+
     if (stack) {
-      if (stack.popContainer(containerId)) {
-        displayMenu();
-        processInput();
-      } else {
-        console.log();
-        console.log('Contêiner não encontrado.');
-        displayMenu();
-        processInput();
-      }
+      stack.popContainer(containerId);
+      console.log();
+      console.log(`Contêiner ${containerId} foi removido.`);
     } else {
       console.log();
-      console.log('Contêiner não encontrado.');
-      displayMenu();
-      processInput();
+      console.log('Contêiner não encontrado ou não está no topo da pilha.');
     }
+
+    displayMenu();
+    processInput();
   });
 }
 
