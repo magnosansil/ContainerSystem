@@ -24,7 +24,8 @@ node Interface.cjs
 
 ## Funcionalidades
 
-- Inserir contêineres com informações como ID, proprietário, tipo de carga, peso e posição de empilhamento.
+- Inserir contêineres com informações proprietário, tipo de carga, peso e posição de empilhamento.
+- Criar um identificador único para cada contêiner, se adaptando à posição em que se encontra.
 - Mover contêineres para novas posições.
 - Consultar dados de contêineres por ID.
 - Consultar o contêiner no topo de uma posição de empilhamento.
