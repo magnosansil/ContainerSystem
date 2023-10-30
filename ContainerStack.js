@@ -21,6 +21,7 @@ class ContainerStack {
       const containerIndex = this.containers.findIndex((c) => c.id === containerId);
       if (containerIndex !== -1) {
         const removedContainer = this.containers.splice(containerIndex, 1)[0];
+        console.log();
         console.log(`Contêiner ${removedContainer.id} excluído com sucesso.`);
         verifier = true;
       } else {

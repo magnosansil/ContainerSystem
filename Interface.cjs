@@ -35,6 +35,7 @@ function insertContainer() {
       .find((container) => container.id === id);
 
     if (duplicateContainer) {
+      console.log();
       console.log('Um contêiner com o mesmo ID já existe. O contêiner não foi inserido.');
       displayMenu();
       processInput();
@@ -63,6 +64,7 @@ function insertContainer() {
 
           rl.question('Peso da carga (em kg): ', (weight) => {
             if (isNaN(weight)) {
+              console.log();
               console.log('Peso da carga inválido.');
               displayMenu();
               processInput();
@@ -111,6 +113,7 @@ function queryContainerData() {
   rl.question('ID do contêiner a ser consultado: ', (containerId) => {
     const container = portSystem.getContainerById(containerId);
     if (container) {
+      console.log();
       console.log('Dados do contêiner:');
       console.log(`ID: ${container.id}`);
       console.log(`Proprietário: ${container.owner}`);
@@ -131,6 +134,7 @@ function queryTopContainerAtPosition() {
     position = position.toUpperCase();
     const container = portSystem.getTopContainerAtPosition(position);
     if (container) {
+      console.log();
       console.log('Contêiner no topo da posição:');
       console.log(`ID: ${container.id}`);
       console.log(`Proprietário: ${container.owner}`);
@@ -190,6 +194,7 @@ function queryContainersByOperationType() {
     const operationType = operationTypes[parseInt(operationTypeChoice) - 1];
 
     if (!operationType) {
+      console.log();
       console.log('Tipo de operação inválido.');
       displayMenu();
       processInput();
@@ -197,6 +202,7 @@ function queryContainersByOperationType() {
     }
 
     const count = portSystem.getContainersByOperationType(operationType);
+    console.log();
     console.log(`Quantidade de contêineres com operação ${operationType}: ${count}`);
     displayMenu();
     processInput();
@@ -225,6 +231,7 @@ function queryTotalWeightByCargoType() {
     }
 
     const totalWeight = portSystem.getTotalWeightByCargoType(formattedCargoType);
+    console.log();
     console.log(`Peso total dos contêineres do tipo ${formattedCargoType}: ${totalWeight} kg`);
     displayMenu();
     processInput();
@@ -234,8 +241,10 @@ function queryTotalWeightByCargoType() {
 function queryEmptyPositions() {
   const emptyPositions = portSystem.getEmptyPositions();
   if (emptyPositions.length === 0) {
+    console.log();
     console.log('Todas as posições estão ocupadas.');
   } else {
+    console.log();
     console.log('Posições de empilhamento vazias: ' + emptyPositions.join(', '));
   }
   displayMenu();
@@ -252,11 +261,13 @@ function deleteContainer() {
         displayMenu();
         processInput();
       } else {
+        console.log();
         console.log('Contêiner não encontrado.');
         displayMenu();
         processInput();
       }
     } else {
+      console.log();
       console.log('Contêiner não encontrado.');
       displayMenu();
       processInput();
