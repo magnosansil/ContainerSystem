@@ -16,10 +16,6 @@ Este é um sistema simples de gestão de contêineres portuários que permite in
 
 node Interface.cjs
 
-ou
-
-node run start
-
 4. O programa apresentará um menu com várias opções para gerenciar os contêineres.
 
 5. Siga as instruções no terminal para inserir, mover, consultar, excluir e gerenciar os contêineres no porto.

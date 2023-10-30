@@ -18,7 +18,7 @@ function displayMenu() {
   console.log('1. Inserir contêiner');
   console.log('2. Mover contêiner');
   console.log('3. Consultar dados de contêiner por ID');
-  console.log('4. Consultar contêiner no topo de uma posição');
+  console.log('4. Consultar contêiner no topo de uma posição (A até J)');
   console.log('5. Consultar quantidade de contêineres por tipo de carga');
   console.log('6. Consultar quantidade de contêineres por tipo de operação');
   console.log('7. Consultar peso total por tipo de carga');
@@ -162,11 +162,18 @@ function queryContainersByCargoType() {
       return;
     }
 
-    const count = portSystem.getContainersByCargoType(cargoType);
-    console.log(`Quantidade de contêineres do tipo ${cargoType}: ${count}`);
+    // Ajustar o cargoType para corresponder ao formato correto
+    const formattedCargoType = formatCargoType(cargoType);
+
+    const count = portSystem.getContainersByCargoType(formattedCargoType);
+    console.log(`Quantidade de contêineres do tipo ${formattedCargoType}: ${count}`);
     displayMenu();
     processInput();
   });
+}
+
+function formatCargoType(cargoType) {
+  return cargoType.charAt(0).toUpperCase() + cargoType.slice(1).toLowerCase();
 }
 
 function queryContainersByOperationType() {
@@ -203,6 +210,9 @@ function queryTotalWeightByCargoType() {
     const cargoTypes = ['Carga Seca', 'Commodities', 'Produtos Perigosos', 'Produtos Perecíveis'];
     const cargoType = cargoTypes[parseInt(cargoTypeChoice) - 1];
 
+    // Ajustar o cargoType para corresponder ao formato correto
+    const formattedCargoType = formatCargoType(cargoType);
+
     if (!cargoType) {
       console.log('Tipo de carga inválido.');
       displayMenu();
@@ -210,8 +220,8 @@ function queryTotalWeightByCargoType() {
       return;
     }
 
-    const totalWeight = portSystem.getTotalWeightByCargoType(cargoType);
-    console.log(`Peso total dos contêineres do tipo ${cargoType}: ${totalWeight} kg`);
+    const totalWeight = portSystem.getTotalWeightByCargoType(formattedCargoType);
+    console.log(`Peso total dos contêineres do tipo ${formattedCargoType}: ${totalWeight} kg`);
     displayMenu();
     processInput();
   });
